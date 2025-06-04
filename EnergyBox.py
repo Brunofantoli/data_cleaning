@@ -72,7 +72,7 @@ if uploaded_file is not None:
         output = df_out.to_csv(index=False)
         st.download_button(
             label=f"Download CSV for '{col}'",
-            icon = ":material/download:"
+            icon = ":material/download:",
             data=output,
             file_name=f"OpisenseStandardDataFile_{file_name}_{col}.csv",
             mime="text/csv",
