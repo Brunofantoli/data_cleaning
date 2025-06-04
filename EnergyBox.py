@@ -14,6 +14,8 @@ if uploaded_file is not None:
     # Can be used wherever a "file-like" object is accepted:
     dataframe = pd.read_csv(uploaded_file)
     df = dataframe
+
+    df
     
     # Keep only rows with full timestamps (format: 'YYYY-MM-DD HH:MM:SS')
     df_cleaned = df[df["Time"].str.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}")]
