@@ -34,7 +34,7 @@ if uploaded_file is not None:
     columns_to_show = ["date"] + selected_columns
     df_cleaned = df_cleaned[columns_to_show]
 
-    file_name = st.text_input("Enter the base name for the files")
+    file_name = st.text_input("Enter the base name for the files (optionnal)")
     if not file_name:
         file_name = "EnergyBox"
 
