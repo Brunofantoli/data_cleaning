@@ -76,5 +76,6 @@ if uploaded_file is not None:
             data=output,
             file_name=f"OpisenseStandardDataFile_{file_name}_{col}.csv",
             mime="text/csv",
-            key=f"download_{col}"
+            key=f"download_{col}",
+            disabled=not (source_id and variable_id)
         )
