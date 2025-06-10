@@ -143,6 +143,15 @@ if uploaded_file is not None:
     if used_in_excel and selected_columns:
         excel_buffer = io.BytesIO()
         df_excel = df_cleaned.copy()
+        # Convert 'date' column to datetime
+        df_excel['date'] = pd.to_datetime(df_excel['date'], errors='coerce')
+        # Create new columns
+        df_excel['time'] = df_excel['date'].dt.strftime('%H:%M:%S')
+        df_excel['weekday'] = df_excel['date'].dt.day_name()
+        df_excel['date'] = df_excel['date'].dt.strftime('%Y-%m-%d')
+        # Reorder columns: date, time, weekday, rest...
+        cols = ['date', 'time', 'weekday'] + [col for col in df_excel.columns if col not in ['date', 'time', 'weekday']]
+        df_excel = df_excel[cols]
         df_excel.to_excel(excel_buffer, index=False)
         excel_buffer.seek(0)
         st.download_button(
