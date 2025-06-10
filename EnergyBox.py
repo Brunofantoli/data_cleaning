@@ -9,6 +9,8 @@ import pandas as pd
 import re
 
 # Load the CSV
+used_in_opinum = st.checkbox("The data will be used in Opinum")
+used_in_excel = st.checkbox("The data will be used in excel")
 uploaded_file = st.file_uploader("Choose a file")
 
 if uploaded_file is not None:
