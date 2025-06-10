@@ -9,20 +9,15 @@ import pandas as pd
 import re
 import io
 import zipfile
-import re
-import io
-import zipfile
 
 # Load the CSV
 used_in_opinum = st.checkbox("The data will be used in Opinum")
 used_in_excel = st.checkbox("The data will be used in excel")
-used_in_opinum = st.checkbox("The data will be used in Opinum")
-used_in_excel = st.checkbox("The data will be used in excel")
+
 uploaded_file = st.file_uploader("Choose a file")
 
 if uploaded_file is not None:
     # Can be used wherever a "file-like" object is accepted:
-    dataframe = pd.read_csv(uploaded_file,skiprows=[0])
     dataframe = pd.read_csv(uploaded_file,skiprows=[0])
     df = dataframe
 
@@ -91,7 +86,6 @@ if uploaded_file is not None:
         )
     st.markdown('--------------------------------------')
     # Download all files for Opinum as ZIP
-        # Download all files for Opinum as ZIP
     if used_in_opinum and selected_columns:
         # Check if all source_id and variable_id are set
         all_ids_set = True
