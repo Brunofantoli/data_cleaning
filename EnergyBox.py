@@ -32,7 +32,7 @@ if uploaded_file is not None:
     if not file_name:
         file_name = "EnergyBox"
 
-        # Download Excel file with all columns (selected and unselected)
+    # Download Excel file with all columns (selected and unselected)
     if used_in_excel:
         st.markdown("#### Download file for Excel")
         if st.checkbox("The peak-time is different from 7:00 to 22:00"):
@@ -57,11 +57,23 @@ if uploaded_file is not None:
         else:
             df_excel['on_peak'] = (~df_excel['is_weekend']) & df_excel['date'].dt.time.between(on_peak_start, on_peak_end)
 
-        # Reorder columns: date, on_peak, then all others alphabetically
-        cols = list(df_excel.columns)
-        cols = [c for c in cols if c not in ['date', 'on_peak', 'is_weekend']]
-        cols_sorted = sorted(cols)
-        final_cols = ['date', 'on_peak'] + cols_sorted
+        # Define your desired column order
+        desired_order = [
+            "date", "on_peak", "Frequency  [Hz]", "I A  [A]", "I B  [A]", "I C  [A]", "I N  [A]", "I Average  [A]",
+            "Pwr Factor A", "Pwr Factor B", "Pwr Factor C", "Pwr Factor Total",
+            "VA A  [kVA]", "VA B  [kVA]", "VA C  [kVA]", "VA Total  [kVA]",
+            "Volts AN  [V]", "Volts BN  [V]", "Volts CN  [V]", "Volts LN Average  [V]",
+            "Volts AB  [V]", "Volts BC  [V]", "Volts CA  [V]", "Volts LL Average  [V]",
+            "Watt A  [kW]", "Watt B  [kW]", "Watt C  [kW]", "Watt Total  [kW]"
+        ]
+
+        # Ensure all columns in desired_order are present, fill missing with blanks
+        for col in desired_order:
+            if col not in df_excel.columns:
+                df_excel[col] = ""
+        final_cols = desired_order  # Only use desired_order, no extras
+        
+        # Reorder the DataFrame to match the desired order
         df_excel = df_excel[final_cols]
 
         df_excel.to_excel(excel_buffer, index=False)
@@ -73,7 +85,6 @@ if uploaded_file is not None:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel"
         )
-
 
     st.markdown('--------------------------------------')
     # Let user select columns (except 'date')
