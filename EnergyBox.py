@@ -141,12 +141,32 @@ if uploaded_file is not None:
 
     # Download Excel file with all selected columns
     if used_in_excel and selected_columns:
+        st.markdown("#### Download file for Excel")
+        if st.checkbox("The peak-time is different from 7:00 to 22:00"):
+            on_peak_start = st.time_input("On-peak start time", value=pd.to_datetime("07:00").time(), key="on_peak_start")
+            on_peak_end = st.time_input("On-peak end time", value=pd.to_datetime("22:00").time(), key="on_peak_end")
+        else:
+            on_peak_start = pd.to_datetime("07:00").time()
+            on_peak_end = pd.to_datetime("22:00").time()
+
+        weekends_on_peak = st.checkbox("Weekends are considered on-peak", key="weekends_on_peak", value=False)
+
         excel_buffer = io.BytesIO()
         df_excel = df_cleaned.copy()
-        # Convert 'date' column to datetime for Excel compatibility
+        # Convert 'date' column to datetime for time comparison
         df_excel['date'] = pd.to_datetime(df_excel['date'], errors='coerce')
-        # Optionally, format as string if you want a specific format:
-        # df_excel['date'] = df_excel['date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+        # Determine if each row is a weekend
+        df_excel['is_weekend'] = df_excel['date'].dt.weekday >= 5  # 5=Saturday, 6=Sunday
+
+        # Create on-peak column with weekend logic
+        if weekends_on_peak:
+            df_excel['on_peak'] = df_excel['date'].dt.time.between(on_peak_start, on_peak_end)
+        else:
+            df_excel['on_peak'] = (~df_excel['is_weekend']) & df_excel['date'].dt.time.between(on_peak_start, on_peak_end)
+
+        # Drop the helper column if you don't want it in the output
+        df_excel = df_excel.drop(columns=['is_weekend'])
+
         df_excel.to_excel(excel_buffer, index=False)
         excel_buffer.seek(0)
         st.download_button(
