@@ -85,7 +85,7 @@ if uploaded_file is not None:
                         return True
             return False
 
-
+        st.markdown("###### Specify On-Peak Hours")
         if st.checkbox("The peak-time is different from 7:00 to 22:00"):
             on_peak_start = st.time_input("On-peak start time", value=pd.to_datetime("07:00").time(), key="on_peak_start")
             on_peak_end = st.time_input("On-peak end time", value=pd.to_datetime("22:00").time(), key="on_peak_end")
