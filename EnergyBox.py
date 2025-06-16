@@ -35,6 +35,57 @@ if uploaded_file is not None:
     # Download Excel file with all columns (selected and unselected)
     if used_in_excel:
         st.markdown("#### Download file for Excel")
+        st.markdown("###### Specify Occupancy Profile for a Typical Week")
+        week_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        occupancy_profiles = []
+
+        add_profile = True
+        profile_idx = 0
+        used_days = set()
+        while add_profile:
+            available_days = [d for d in week_days if d not in used_days]
+            if not available_days:
+                break
+            selected_days = st.multiselect(
+                f"Select days for occupancy profile #{profile_idx+1}",
+                options=available_days,
+                key=f"occ_days_{profile_idx}"
+            )
+            if selected_days:
+                open_time = st.time_input(
+                    f"Opening time for {', '.join(selected_days)}",
+                    value=pd.to_datetime("08:00").time(),
+                    key=f"open_{profile_idx}"
+                )
+                close_time = st.time_input(
+                    f"Closing time for {', '.join(selected_days)}",
+                    value=pd.to_datetime("18:00").time(),
+                    key=f"close_{profile_idx}"
+                )
+                occupancy_profiles.append({
+                    "days": selected_days,
+                    "open": open_time,
+                    "close": close_time
+                })
+                used_days.update(selected_days)
+            add_profile = st.checkbox(
+                "Add another occupancy profile",
+                key=f"add_profile_{profile_idx}"
+            )
+            if add_profile:
+                profile_idx += 1
+
+        # --- Compute 'occupied' column for Excel export ---
+        def is_occupied(row, profiles):
+            weekday = row['date'].strftime("%A")
+            time = row['date'].time()
+            for prof in profiles:
+                if weekday in prof['days']:
+                    if prof['open'] <= time <= prof['close']:
+                        return True
+            return False
+
+
         if st.checkbox("The peak-time is different from 7:00 to 22:00"):
             on_peak_start = st.time_input("On-peak start time", value=pd.to_datetime("07:00").time(), key="on_peak_start")
             on_peak_end = st.time_input("On-peak end time", value=pd.to_datetime("22:00").time(), key="on_peak_end")
@@ -57,9 +108,16 @@ if uploaded_file is not None:
         else:
             df_excel['on_peak'] = (~df_excel['is_weekend']) & df_excel['date'].dt.time.between(on_peak_start, on_peak_end)
 
-        # Define your desired column order
+        df_excel['occupied'] = df_excel.apply(lambda row: is_occupied(row, occupancy_profiles), axis=1)
+        # Insert 'occupied' after 'date'
+        cols = list(df_excel.columns)
+        if 'occupied' in cols:
+            cols.insert(cols.index('date') + 1, cols.pop(cols.index('occupied')))
+            df_excel = df_excel[cols]
+
+        # Update desired_order to include 'occupied' after 'date'
         desired_order = [
-            "date", "on_peak", "Frequency  [Hz]", "I A  [A]", "I B  [A]", "I C  [A]", "I N  [A]", "I Average  [A]",
+            "date", "occupied", "on_peak", "Frequency  [Hz]", "I A  [A]", "I B  [A]", "I C  [A]", "I N  [A]", "I Average  [A]",
             "Pwr Factor A", "Pwr Factor B", "Pwr Factor C", "Pwr Factor Total",
             "VA A  [kVA]", "VA B  [kVA]", "VA C  [kVA]", "VA Total  [kVA]",
             "Volts AN  [V]", "Volts BN  [V]", "Volts CN  [V]", "Volts LN Average  [V]",
