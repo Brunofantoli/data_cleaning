@@ -32,8 +32,11 @@ if uploaded_file is not None:
     output = df_cleaned.to_csv(index=False)
     
     st.download_button(
-        label="Download cleaned CSV",
+        label="Download",
         data=output,  # Convert DataFrame to CSV string
         file_name="OpisenseStandardDataFile_"+file_name+".csv",
         mime="text/csv",
+        disabled=not (source_id and variable_id)
     )
+    if not (source_id and variable_id):
+        st.warning("Fill in the Source ID and Variable ID fields to download the file.")
