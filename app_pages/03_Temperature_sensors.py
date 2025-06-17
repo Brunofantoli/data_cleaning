@@ -7,6 +7,9 @@ Created on Tue Jun  3 14:46:13 2025
 import streamlit as st
 import pandas as pd
 
+
+st.title("Temperature Sensors Data Cleaning")
+st.write("This page is designed to help you clean and prepare your temperature sensor data for an upload in Opinum.")
 # Load the CSV
 uploaded_file = st.file_uploader("Choose a file")
 

@@ -10,6 +10,11 @@ import re
 import io
 import zipfile
 
+st.title("Energy Box Data Cleaning")
+st.write("This page is designed to help you manage and analyze data from the Energy Box.")
+st.write("You can upload a CSV file downloaded from the Energy Box, select the data you want to import into Opinum, and download the cleaned data in the correct format.")
+st.write("You can also download an Excel file from the Electricity analysis template.")
+
 # Load the CSV
 used_in_opinum = st.checkbox("The data will be used in Opinum")
 used_in_excel = st.checkbox("The data will be used in excel")
