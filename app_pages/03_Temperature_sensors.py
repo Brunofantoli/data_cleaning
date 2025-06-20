@@ -19,12 +19,15 @@ file_name = st.text_input("Enter the name of the data")
 
 if uploaded_file is not None:
     # Can be used wherever a "file-like" object is accepted:
-    dataframe = pd.read_csv(uploaded_file)
-
+    uploaded_file.seek(0)  # Reset the file pointer to the beginning of the file
+    dataframe = pd.read_csv(uploaded_file, header=None, names=["Time", "Temp/°C"], skiprows=1, parse_dates=["Time"], infer_datetime_format=True)
     df = dataframe
-    
-    # Keep only rows with full timestamps (format: 'YYYY-MM-DD HH:MM:SS')
-    df_cleaned = df[df["Time"].str.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}")]
+
+    # Force non-parsable dates to NaT (Not a Time)
+    df["Time"] = pd.to_datetime(df["Time"], errors='coerce')
+
+    # Drop rows where parsing failed
+    df_cleaned = df.dropna(subset=["Time"])
     
     df_cleaned["source_id"] = source_id
     df_cleaned["variable_id"] = variable_id
