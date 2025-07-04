@@ -109,9 +109,9 @@ if uploaded_file is not None:
         df_excel['is_weekend'] = df_excel['date'].dt.weekday >= 5
 
         if weekends_on_peak:
-            df_excel['on_peak'] = df_excel['date'].dt.time.between(on_peak_start, on_peak_end)
+            df_excel['on_peak'] = df_excel['date'].dt.time.between(on_peak_start, on_peak_end) # type: ignore
         else:
-            df_excel['on_peak'] = (~df_excel['is_weekend']) & df_excel['date'].dt.time.between(on_peak_start, on_peak_end)
+            df_excel['on_peak'] = (~df_excel['is_weekend']) & df_excel['date'].dt.time.between(on_peak_start, on_peak_end) # type: ignore
 
         df_excel['occupied'] = df_excel.apply(lambda row: is_occupied(row, occupancy_profiles), axis=1)
         # Insert 'occupied' after 'date'

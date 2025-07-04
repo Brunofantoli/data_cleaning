@@ -20,7 +20,7 @@ file_name = st.text_input("Enter the name of the data")
 if uploaded_file is not None:
     # Can be used wherever a "file-like" object is accepted:
     uploaded_file.seek(0)  # Reset the file pointer to the beginning of the file
-    dataframe = pd.read_csv(uploaded_file, header=None, names=["Time", "Temp/°C"], skiprows=1, parse_dates=["Time"], infer_datetime_format=True)
+    dataframe = pd.read_csv(uploaded_file, header=None, names=["Time", "Temp/°C"], skiprows=1, parse_dates=["Time"], infer_datetime_format=True) # type: ignore
     df = dataframe
 
     # Force non-parsable dates to NaT (Not a Time)
