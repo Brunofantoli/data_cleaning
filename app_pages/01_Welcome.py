@@ -1,5 +1,6 @@
 import streamlit as st
 
+#st.image("KLARECO_LOGO_GREEN.png", width=200)
 st.title("Welcome to this Data Cleaning Application!")
 st.write("This app is designed to help you manage and analyze your energy data efficiently.")
 
