@@ -12,6 +12,9 @@ import io
 st.title("Temperature Sensors Data Cleaning")
 st.write("This page is designed to help you clean and prepare your temperature sensor data for an upload in Opinum or for an analysis in excel.")
 # Load the CSV
+
+
+#---------------- OPINUM ------------------------------------------------------------------------------------
 if st.selectbox("Where do you want to use the data ?",("Opinum", "Excel"))=="Opinum":
     uploaded_file = st.file_uploader("Choose a file")
 
@@ -60,9 +63,10 @@ if st.selectbox("Where do you want to use the data ?",("Opinum", "Excel"))=="Opi
         )
         if not (source_id and variable_id):
             st.warning("Fill in the Source ID and Variable ID fields to download the file.")
-
+#---------------- EXCEL ------------------------------------------------------------------------------------
 else:
     uploaded_files = st.file_uploader("Choose one or more files", accept_multiple_files=True)
+    round_time = st.checkbox("Round timestamps to nearest 15 minutes before merging", value=True)
 
     merged_df = None
 
@@ -94,7 +98,14 @@ else:
             df = df[[time_col, temp_col]].copy()
             df[time_col] = pd.to_datetime(df[time_col], errors='coerce')
             df = df.dropna(subset=[time_col])
-            df = df.rename(columns={temp_col: file_name, time_col: "DateTime"})
+
+            # Round to nearest 15 minutes if checkbox is checked
+            if round_time:
+                df[time_col] = df[time_col].dt.round('15min')
+
+            # Remove file extension from the column name
+            col_name = file_name.rsplit('.', 1)[0]
+            df = df.rename(columns={temp_col: col_name, time_col: "DateTime"})
 
             if merged_df is None:
                 merged_df = df
@@ -104,7 +115,7 @@ else:
         if merged_df is not None:
             merged_df = merged_df.sort_values("DateTime")
             merged_df.reset_index(drop=True, inplace=True)
-            st.write("Merged Data", merged_df)
+            #st.write("Merged Data", merged_df)   # Debugging line
 
             # Output as XLSX
             output = io.BytesIO()
