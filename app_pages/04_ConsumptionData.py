@@ -11,11 +11,8 @@ logging.basicConfig(level=logging.WARNING)
 st.title("Consumption Data")
 st.write("This page is designed to help you manage and analyze consumption data received from clients.")
 st.write("You can upload a the file received from the client and it will be processed and cleaned for excel use.")
-st.write("This page is still being developed.")
-st.write("""
-Upload energy consumption files from different clients (CSV, XLSX, etc.).
-This tool will standardize date/time formats, handle missing data, and export a clean dataset.
-""")
+st.write("THIS PAGE IS STILL BEING DEVELOPED.")
+
 
 def load_file(uploaded_file):
     """
