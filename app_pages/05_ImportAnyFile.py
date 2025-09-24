@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 
 st.title("General File Import for Opinum Upload")
+st.write("This page allows you to upload any data file (CSV, Excel) and convert selected variables into the Opinum standard format for easy upload.")
+st.write("Please ensure your data includes a date/time column and the variables you wish to upload in different columns.")
 
 uploaded_file = st.file_uploader("Upload your data file (CSV, Excel, etc.)", type=["csv", "xlsx", "xls"]) 
 
