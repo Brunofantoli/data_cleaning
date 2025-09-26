@@ -35,8 +35,12 @@ if df is not None:
             variable_id = st.text_input(f"Variable ID for {var}", key=f"varid_{var}")
             file_name = st.text_input(f"Optional file name for {var}", key=f"fname_{var}")
             # Prepare Opinum format: Date, Value, Source ID, Variable ID
+            # Parse date column with explicit format
+            parsed_dates = pd.to_datetime(df[date_col], format='%d/%m/%Y %H:%M', errors='coerce')
+            # Format for Opinum: YYYY-MM-DD HH:MM:SS
+            formatted_dates = parsed_dates.dt.strftime('%Y-%m-%d %H:%M:%S')
             out_df = pd.DataFrame({
-                "date": df[date_col],
+                "date": formatted_dates,
                 "value": df[var],
                 "source_id": source_id,
                 "variable_id": variable_id
