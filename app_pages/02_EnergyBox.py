@@ -120,7 +120,26 @@ if uploaded_file is not None:
             cols.insert(cols.index('date') + 1, cols.pop(cols.index('occupied')))
             df_excel = df_excel[cols]
 
-        # Update desired_order to include 'occupied' after 'date'
+        # --- Normalize columns that contain units in their cells and map them to desired names ---
+        import math
+
+        def extract_numeric(val):
+            """Extract first numeric token from a cell like '235.115 V' or '-1,281 kW' and return float."""
+            if pd.isna(val):
+                return val
+            # leave pure strings like 'L' (load type) untouched
+            s = str(val).strip()
+            # look for a number pattern (support comma or dot decimals)
+            m = re.search(r'[-+]?\d+[\d\.,]*', s)
+            if not m:
+                return s
+            num = m.group(0).replace(',', '.')  # normalize decimal comma to dot
+            try:
+                return float(num)
+            except Exception:
+                return s
+
+        # desired output order (keep as before)
         desired_order = [
             "date", "occupied", "on_peak", "Frequency  [Hz]", "I A  [A]", "I B  [A]", "I C  [A]", "I N  [A]", "I Average  [A]",
             "Pwr Factor A", "Pwr Factor B", "Pwr Factor C", "Pwr Factor Total",
@@ -130,12 +149,35 @@ if uploaded_file is not None:
             "Watt A  [kW]", "Watt B  [kW]", "Watt C  [kW]", "Watt Total  [kW]"
         ]
 
-        # Ensure all columns in desired_order are present, fill missing with blanks
-        for col in desired_order:
-            if col not in df_excel.columns:
-                df_excel[col] = ""
+        # Build a mapping from a normalized name (without unit brackets) to actual df column
+        def normalize_name(name):
+            # remove bracketed unit part and collapse spaces + lowercase
+            name_no_unit = re.sub(r"\s*\[.*?\]", "", name).strip()
+            name_no_unit = re.sub(r"\s+", " ", name_no_unit)
+            return name_no_unit.lower()
+
+        existing_map = {normalize_name(c): c for c in df_excel.columns}
+
+        # For each desired column, try to fill from matching existing column (ignoring unit suffix),
+        # and convert values to numeric when appropriate.
+        for desired in desired_order:
+            norm = normalize_name(desired)
+            if desired in df_excel.columns:
+                # exact match exists, try to convert values
+                if df_excel[desired].dtype == object:
+                    df_excel[desired] = df_excel[desired].apply(extract_numeric)
+            elif norm in existing_map:
+                src_col = existing_map[norm]
+                # create the desired-named column from source column
+                # convert numeric-like strings to numbers
+                new_series = df_excel[src_col].apply(extract_numeric)
+                df_excel[desired] = new_series
+            else:
+                # column missing: create empty column
+                df_excel[desired] = ""
+
         final_cols = desired_order  # Only use desired_order, no extras
-        
+
         # Reorder the DataFrame to match the desired order
         df_excel = df_excel[final_cols]
 
